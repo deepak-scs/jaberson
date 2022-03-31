@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Resource Requirement list View -->
+    <record id="view_resource_requirement_tree" model="ir.ui.view">
+        <field name="name">resource.requirement.tree</field>
+        <field name="model">resource.requirement</field>
+        <field name="arch" type="xml">
+            <tree string="Resource Requirement" class="partner_id_css project_id_css description_scope_css start_date_css poc_css assigned_emp_ids_css assigned_vehicle_ids_css driver_ids_css location_collection_css quote_ref_css duty_timing_css cargo_description_css location_delivery_id_css arrival_time_delivery_css remarks_css state_css">
+                <field name="sequence" widget="handle"/>
+                <field name="name" string="Name" optional="hide"/>
+                <field name="partner_id"/>
+                <field name="project_id"/>
+                <field name="description_scope_of_work"/>
+                <field name="start_date" optional="hide"/>
+                <field name="poc" optional="hide"/>
+                <field name="end_date" optional="hide"/>
+                <field name="assigned_emp_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="assigned_vehicle_ids" widget="many2many_tags"/>
+                <field name="job_requirement_ids" widget="many2many_tags" optional="hide"/>
+                <field name="employee_booking_ids" widget="many2many_tags" optional="hide"/>
+                <field name="vehicle_ids" widget="many2many_tags" optional="hide"/>
+                <field name="employee_ids" widget="many2many_tags" optional="hide"/>
+                <field name="vehicle_requirement_ids" widget="many2many_tags" optional="hide"/>
+                <field name="vehicle_booking_ids" widget="many2many_tags" optional="hide"/>
+                <field name="driver_ids" widget="many2many_tags" groups="resource_requirement.team_operator" options="{'color_field': 'color'}"/>
+                <field name="location_collection" optional="hide"/>
+                <!-- <field name="arrival_time_collection" optional="hide"/> -->
+                <field name="quote_ref" optional="hide"/>
+                <field name="duty_timing" optional="hide" groups="resource_requirement.team_operator"/>
+                <field name="do_end_time" optional="hide" groups="resource_requirement.team_operator"/>
+                <field name="cargo_description" optional="hide"/>
+                <field name="user_id" optional="hide"/>
+                <field name="location_delivery_id" optional="hide"/>
+                <field name="arrival_time_delivery" optional="hide"/>
+                <!-- <field name="order_id" optional="hide"/> -->
+                <field name="remarks" optional="hide"/>
+                <field name="state" widget="badge" decoration-success="state == 'completed'" decoration-info="state == 'new'" decoration-danger="state == 'canceled'" decoration-muted="state == 'assigned'" decoration-warning="state in ('pending', 'postpone')"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Resource Requirement pivot View -->
+    <!-- <record model="ir.ui.view" id="resource_requirement_pivot_view">
+        <field name="name">resource.requirement.pivot</field>
+        <field name="model">resource.requirement</field>
+        <field name="arch" type="xml">
+            <pivot string="Resource Requirement" sample="1">
+                <field name="start_date" type="row"/>
+                <field name="project_id" type="measure"/>
+            </pivot>
+        </field>
+    </record> -->
+
+    <!-- Resource Requirement form View -->
+    <record id="view_resource_requirement_form" model="ir.ui.view">
+        <field name="name">resource.requirement.form</field>
+        <field name="model">resource.requirement</field>
+        <field name="arch" type="xml">
+            <form string="Resource Requirement">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="new,pending,assigned,postpone,completed,canceled"/>
+                    <button name="action_pending" string="Pending" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', 'not in', ['new', 'canceled'])]}"/>
+                    <button name="action_assign" string="Assign" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', '!=', 'new')]}"/>
+                    <button name="action_cancel" string="Cancel" type="object" attrs="{'invisible':[('state', 'not in', ['new', 'pending', 'assigned'])]}"/>
+                    <button name="action_postpone" string="Postpone" type="object" attrs="{'invisible':['|', ('is_team_operator', '!=', False), ('state', 'not in', ['assigned','pending'])]}"/>
+                    <button name="action_update" string="Update" type="object" attrs="{'invisible':['|', ('is_team_operator', '!=', False), ('state', '!=', 'pending')]}"/>
+                    <button name="action_released" string="Release" type="object" attrs="{'invisible':[('state', '!=', 'assigned')]}" groups="resource_requirement.team_operator"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button  class="oe_stat_button" name="action_book_employee" type="object" icon="fa-users">
+                            <field string="Booking Employee" name="book_emp_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" required="1" domain="[('is_internal_staffs', '=', False)]"/>
+                            <field name="poc"/>
+                            <field name="location_collection"/>
+                            <field name="quote_ref"/>
+                            <field name="start_date" required="1"/>
+                            <field name="end_date" required="1"/>
+                            <field name="duty_timing" groups="resource_requirement.team_operator" widget="timepicker"/>
+                            <field name="do_end_time" groups="resource_requirement.team_operator"/>
+                            <field name="cargo_description"/>
+                            <field name="is_team_operator" invisible="1"/>
+                            <field name="total_staff"/>
+                            <field name="assigned_emp_ids" widget="many2many_tags" invisible="1"/>
+                            <field name="assigned_vehicle_ids" invisible="1" widget="many2many_tags"/>
+                            <field name="driver_ids" widget="many2many_tags" groups="resource_requirement.team_operator" domain="[('is_driver', '=', True)]" options="{'color_field': 'color'}"/>
+                        </group>
+                        <group>
+                            <field name="user_id" attrs="{'readonly':[('is_team_operator','=',False)]}" domain="[('share','=',False)]"/>
+                            <field name="project_id" required="1"/>
+                            <field name="location_delivery_id"/>
+                            <field name="arrival_time_delivery" widget="timepicker"/>
+                            <!-- <field name="order_id"/> -->
+                            <field name="description_scope_of_work"/>
+                            <field name="remarks"/>
+                            <field name="remaining_resources"/>
+                            <field name="remaining_vehicle"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Job Requirement" name="job_requirement">
+                            <field name="job_requirement_ids" context="{'default_project_id': project_id, 'default_start_date': start_date, 'default_end_date': end_date}">
+                                <tree editable="bottom">
+                                    <field name="project_id" invisible="1"/>
+                                    <field name="resource_id" invisible="1"/>
+                                    <field name="job_id" required="1"/>
+                                    <field name="number_of_position"/>
+                                    <field name="start_date" required="1"/>
+                                    <field name="end_date" required="1"/>
+                                    <field name="is_team_operator" invisible="1"/>
+                                    <field name="skill_ids" widget="many2many_tags"/>
+                                    <field name="employee_ids" widget="many2many_tags" domain="[('job_id', '=', job_id)]" context="{'is_job_requirement': True, 'default_project_id': project_id, 'default_start_date': start_date, 'default_end_date': end_date, 'default_skill_ids': skill_ids}" groups="resource_requirement.team_operator"/>
+                                    <field name="notes"/>
+                                    <field name="state" invisible="1" groups="resource_requirement.team_operator"/>
+                                    <button name="action_pending_job" string="Pending" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', 'not in', ['new', 'canceled'])]}"/>
+                                    <button name="action_assign_job" string="Assign" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', '!=', 'new')]}"/>
+                                    <button name="action_cancel_job" string="Cancel" type="object" attrs="{'invisible':[('state', 'not in', ['new', 'pending','assigned'])]}"/>
+                                    <button name="action_postpone_job" string="Postpone" type="object" attrs="{'invisible':['|', ('is_team_operator', '!=', False), ('state', 'not in', ['assigned','pending'])]}"/>
+                                    <button name="action_update_job" string="Update" type="object" attrs="{'invisible':['|', ('is_team_operator', '!=', False), ('state', '!=', 'pending')]}"/>
+                                    <button name="action_released_job" string="Release" type="object" attrs="{'invisible':[('state', '!=', 'assigned')]}" groups="resource_requirement.team_operator"/>
+                                </tree>
+                            </field>
+                            <notebook>
+                                <page string="Remaining SIC List" name="remaining_sis_list">
+                                    <field name="employee_ids" groups="resource_requirement.team_operator">
+                                        <tree create="0">
+                                            <field name="name"/>
+                                            <field name="work_phone"/>
+                                            <field name="work_email"/>
+                                            <field name="job_id"/>
+                                        </tree>
+                                    </field>
+                                </page>
+                            </notebook>
+                            <notebook>
+                                <page string="Remaining Manpower for the day" name="remaining_manpower">
+                                    <field name="remaining_resources_ids" groups="resource_requirement.team_operator">
+                                        <tree create="0">
+                                            <field name="name"/>
+                                            <field name="work_phone"/>
+                                            <field name="work_email"/>
+                                            <field name="job_id"/>
+                                        </tree>
+                                    </field>
+                                </page>
+                            </notebook>
+                            <notebook>
+                                <page string="Remaining Vehicle for the day" name="vehicle_manpower">
+                                    <field name="remaining_vehicle_ids" groups="resource_requirement.team_operator">
+                                        <tree create="0">
+                                            <field name="license_plate"/>
+                                            <field name="model_id"/>
+                                            <field name="type_of_vehicle_id"/>
+                                            <field name="vin_sn"/>
+                                        </tree>
+                                    </field>
+                                </page>
+                            </notebook>
+                        </page>
+                        <page string="Employee Booking" groups="resource_requirement.team_operator">
+                            <field name="employee_booking_ids">
+                                <tree editable="bottom" create="0">
+                                    <field name="job_requirement_id" invisible="1"/>
+                                    <field name="resource_id" invisible="1"/>
+                                    <field name="employee_id" readonly="1" string="Employee"/>
+                                    <field name="start_date" readonly="1"/>
+                                    <field name="end_date" readonly="1"/>
+                                    <field name="is_team_operator" invisible="1"/>
+                                    <field name="state" invisible="1"/>
+                                    <button name="action_assign_booking" string="Assign" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', '!=', 'new')]}"/>
+                                    <button name="action_released_booking" string="Release" type="object" attrs="{'invisible':[('state', '!=', 'assigned')]}" groups="resource_requirement.team_operator"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Vehicle Requirement">
+                            <field name="vehicle_requirement_ids" context="{'default_start_date': start_date, 'default_end_date': end_date}">
+                                <tree editable="bottom">
+                                    <field name="vehicle_type_id" required="1"/>
+                                    <field name="number_of_vehicle"/>
+                                    <field name="resource_id" invisible="1"/>
+                                    <field name="start_date" required="1"/>
+                                    <field name="end_date" required="1"/>
+                                    <field name="vehicle_ids" widget="many2many_tags" groups="resource_requirement.team_operator" domain="[('type_of_vehicle_id', '=', vehicle_type_id)]" context="{'is_vehicle_requirement_line': True, 'default_start_date': start_date, 'default_end_date': end_date}"/>
+                                    <field name="notes"/>
+                                    <field name="is_team_operator" invisible="1"/>
+                                    <field name="state" invisible="1"/>
+                                    <button name="action_pending_vehicle" string="Pending" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', 'not in', ['new', 'canceled'])]}"/>
+                                    <button name="action_assign_vehicle" string="Assign" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', '!=', 'new')]}"/>
+                                    <button name="action_cancel_vehicle" string="Cancel" type="object" attrs="{'invisible':[('state', 'not in', ['new', 'pending', 'assigned'])]}"/>
+                                    <button name="action_postpone_vehicle" string="Postpone" type="object" attrs="{'invisible':['|', ('is_team_operator', '!=', False), ('state', 'not in', ['assigned','pending'])]}"/>
+                                    <button name="action_update_vehicle" string="Update" type="object" attrs="{'invisible':['|', ('is_team_operator', '!=', False), ('state', '!=', 'pending')]}"/>
+                                    <button name="action_released_vehicle" string="Release" type="object" attrs="{'invisible':[('state', '!=', 'assigned')]}" groups="resource_requirement.team_operator"/>
+                                </tree>
+                            </field>
+                            <notebook>
+                                <page string="Vehicle Remaining List" name="remaining_vehicle_list">
+                                    <field name="vehicle_ids" groups="resource_requirement.team_operator">
+                                        <tree create="0">
+                                            <field name="license_plate"/>
+                                            <field name="model_id"/>
+                                            <field name="type_of_vehicle_id"/>
+                                            <!-- <field name="driver_id"/> -->
+                                            <field name="vin_sn"/>
+                                        </tree>
+                                    </field>
+                                </page>
+                            </notebook>
+                        </page>
+                        <page string="Vehicle Booking" groups="resource_requirement.team_operator">
+                            <field name="vehicle_booking_ids">
+                                <tree editable="bottom" create="0">
+                                    <field name="resource_id" invisible="1"/>
+                                    <field name="vehicle_id"/>
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+                                    <field name="state" invisible="1"/>
+                                    <button name="action_assign_vehicle_booking" string="Assign" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', '!=', 'new')]}"/>
+                                    <button name="action_released_vehicle_booking" string="Release" type="object" attrs="{'invisible':[('state', '!=', 'assigned')]}" groups="resource_requirement.team_operator"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Resource Requirement Kanban View  -->
+        <record model="ir.ui.view" id="view_resource_requirement_kanban">
+            <field name="name">resource.requirement.kanban</field>
+            <field name="model">resource.requirement</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_mobile" sample="1">
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <!-- <field name="order_id"/> -->
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="state"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                                <div class="o_kanban_record_top mb16">
+                                    <div class="o_kanban_record_headings mt4">
+                                        <strong class="o_kanban_record_title"><span><t t-esc="record.partner_id.value"/></span></strong>
+                                    </div>
+                                    <!-- <strong><field name="order_id"/></strong> -->
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left text-muted">
+                                        <span>
+                                            <t t-esc="record.name.value"/>
+                                            <t t-esc="record.start_date.value"/>
+                                            <t t-esc="record.end_date.value"/>
+                                        </span>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <field name="state" widget="label_selection" options="{'classes': {'new': 'default', 'canceled': 'default', 'update': 'success'}}"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+    <!-- View of Resource Requirement Groupby -->
+    <record id="view_resource_requirement_search" model="ir.ui.view">
+        <field name="name">resource.requirement.search</field>
+        <field name="model">resource.requirement</field>
+        <field name="arch" type="xml">
+            <search string="Search Resource Requirement">
+                <field name="state"/>
+                <field name="partner_id"/>
+                <field name="create_uid"/>
+                <field name="start_date"/>
+                <group expand="0" string="Group By">
+                    <filter string="State" name="states" domain="[]" context="{'group_by':'state'}"/>
+                    <filter string="Customer" name="partner" domain="[]" context="{'group_by':'partner_id'}"/>
+                    <filter string="Salesperson" name="user" domain="[]" context="{'group_by':'create_uid'}"/>
+                    <filter string="Today" name="today" domain="[('start_date', '&gt;=', datetime.datetime.now().strftime('%Y-%m-%d 00:00:00')),('start_date', '&lt;=',datetime.datetime.now().strftime('%Y-%m-%d 23:23:59'))]"/>
+                    <filter name="tomorrow" string="Tomorrow" domain="[('start_date','&lt;=', datetime.datetime.combine(context_today()+datetime.timedelta(days=1), datetime.time(23,59,59))), ('start_date','&gt;=', datetime.datetime.combine(context_today()+datetime.timedelta(days=1), datetime.time(0,0,0)))]"/>
+                    <filter string="Current Week" name="Current Week" domain="[('start_date','&lt;',(context_today()+relativedelta(days=7)).strftime('%Y-%m-%d 23:59:59')), ('start_date','&gt;=',context_today().strftime('%Y-%m-%d 00:00:00'))]"/>
+                    <filter string="Last Week" name="last_week" separator="1"
+                    domain="[('start_date', '&gt;=', ((context_today()+relativedelta(weeks=-2, days=1, weekday=0)).strftime('%Y-%m-%d'))),
+                    ('start_date', '&lt;=', ((context_today()+relativedelta(weeks=-1,weekday=6)).strftime('%Y-%m-%d')))]"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Calendar View of Resource Requirement -->
+    <record id="view_resource_requirement_calendar" model="ir.ui.view">
+        <field name="name">resource.requirement.calendar</field>
+        <field name="model">resource.requirement</field>
+        <field name="arch" type="xml">
+            <calendar string="Resource Requirement" date_start="start_date" date_stop="end_date" color="state" hide_time="true" event_limit="5">
+                <field name="state" filters="1" invisible="1"/>
+                <field name="project_id" filters="1" invisible="1"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Action of Resource Requirement -->
+    <record id="action_resource_requirement" model="ir.actions.act_window">
+        <field name="name">Resource Requirement</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">resource.requirement</field>
+        <field name="view_mode">tree,form,kanban,calendar</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Click to add a new Resource Requirement.
+            </p>
+            <p>
+                This allows you to classify your Resource Requirements.
+            </p>
+        </field>
+    </record>
+
+    <!-- Main Menu action of Resource planning -->
+    <menuitem id="main_menu_resource_requirement"
+        name="Resource Planning"
+        groups="resource_requirement.team_sales"
+        web_icon="resource_requirement,static/description/icon.png"
+    />
+
+    <menuitem id="menu_resource_requirement"
+        name="Resource Requirement"
+        groups="resource_requirement.team_sales"
+        action="action_resource_requirement"
+        parent="main_menu_resource_requirement"
+        sequence="1"
+    />
+
+</odoo>

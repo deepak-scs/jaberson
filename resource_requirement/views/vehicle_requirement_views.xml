@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- vehicle requirement list View -->
+    <record id="view_vehicle_requirement_tree" model="ir.ui.view">
+        <field name="name">vehicle.requirement.tree</field>
+        <field name="model">vehicle.requirement</field>
+        <field name="arch" type="xml">
+            <tree string="Vehicle Requirement">
+                <field name="vehicle_type_id"/>
+                <field name="number_of_vehicle"/>
+                <field name="resource_id" invisible="1"/>
+                <field name="vehicle_ids" widget="many2many_tags"/>
+                <field name="notes"/>
+                <field name="is_team_operator" invisible="1"/>
+                <field name="state" widget="badge" decoration-success="state == 'completed'" decoration-info="state == 'new'" decoration-danger="state == 'canceled'" decoration-muted="state == 'assigned'" decoration-warning="state in ('pending', 'postpone')"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- vehicle requirement form View -->
+    <record id="view_vehicle_requirement_form" model="ir.ui.view">
+        <field name="name">vehicle.requirement.form</field>
+        <field name="model">vehicle.requirement</field>
+        <field name="arch" type="xml">
+            <form string="Vehicle Requirement">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="new,pending,assigned,postpone,completed,canceled"/>
+                    <button name="action_pending_vehicle" string="Pending" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', 'not in', ['new', 'canceled'])]}"/>
+                    <button name="action_assign_vehicle" string="Assign" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', '!=', 'new')]}"/>
+                    <button name="action_cancel_vehicle" string="Cancel" type="object" attrs="{'invisible':[('state', 'not in', ['new', 'pending', 'assigned'])]}"/>
+                    <button name="action_postpone_vehicle" string="Postpone" type="object" attrs="{'invisible':['|', ('is_team_operator', '!=', False), ('state', 'not in', ['assigned','pending'])]}"/>
+                    <button name="action_update_vehicle" string="Update" type="object" attrs="{'invisible':['|', ('is_team_operator', '!=', False), ('state', '!=', 'pending')]}"/>
+                    <button name="action_released_vehicle" string="Release" type="object" attrs="{'invisible':[('state', '!=', 'assigned')]}" groups="resource_requirement.team_operator"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="vehicle_type_id" required="1"/>
+                            <field name="resource_id" required="1"/>
+                            <field name="notes"/>
+                        </group>
+                        <group>
+                            <field name="number_of_vehicle" required="1"/>
+                            <field name="is_team_operator" invisible="1"/>
+                            <field name="start_date" required="1"/>
+                            <field name="end_date" required="1"/>
+                            <field name="vehicle_ids" widget="many2many_tags" groups="resource_requirement.team_operator" domain="[('type_of_vehicle_id', '=', vehicle_type_id)]" context="{'is_vehicle_requirement_line': True, 'default_start_date': start_date, 'default_end_date': end_date}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Vehicle Booking">
+                           <field name="vehicle_booking_ids">
+                                <tree editable="bottom" create="0">
+                                    <field name="resource_id" invisible="1"/>
+                                    <field name="vehicle_id"/>
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+                                    <field name="state" invisible="1"/>
+                                    <button name="action_assign_vehicle_booking" string="Assign" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', '!=', 'new')]}"/>
+                                    <button name="action_released_vehicle_booking" string="Release" type="object" attrs="{'invisible':[('state', '!=', 'assigned')]}" groups="resource_requirement.team_operator"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- vehicle requirement groupby View -->
+    <record id="view_vehicle_requirement_search" model="ir.ui.view">
+        <field name="name">vehicle.requirement.search</field>
+        <field name="model">vehicle.requirement</field>
+        <field name="arch" type="xml">
+            <search string="Search Vehicle Requirement">
+                <field name="vehicle_type_id"/>
+                <field name="state"/>
+                <group expand="0" string="Group By">
+                    <filter string="State" name="states" domain="[]" context="{'group_by':'state'}"/>
+                    <filter string="Type of Vehicle" name="vehicle_type_id" domain="[]" context="{'group_by':'vehicle_type_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action of vehicle requirement -->
+    <record id="action_vehicle_requirement" model="ir.actions.act_window">
+        <field name="name">Vehicle Requirement</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">vehicle.requirement</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Click to add a new vehicle requirement.
+            </p>
+            <p>
+                This allows you to classify your vehicle.requirements.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu action of vehicle requirement -->
+    <menuitem id="menu_vehicle_trequirement"
+        name="Vehicle Requirement"
+        action="action_vehicle_requirement"
+        groups="resource_requirement.team_operator"
+        parent="main_menu_resource_requirement"
+        sequence="5"
+    />
+
+</odoo>

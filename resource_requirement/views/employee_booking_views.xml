@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- employee booking list view -->
+    <record id="view_employee_booking_tree" model="ir.ui.view">
+        <field name="name">employee.booking.tree</field>
+        <field name="model">employee.booking</field>
+        <field name="arch" type="xml">
+            <tree string="Employee Booking">
+                <field name="employee_id"/>
+                <field name="job_id"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="remaining_employee_ids" widget="many2many_tags"/>
+                <field name="is_team_operator" invisible="1"/>
+                <field name="state" widget="badge" decoration-success="state == 'completed'" decoration-info="state == 'new'" decoration-danger="state == 'canceled'" decoration-muted="state == 'assigned'" decoration-warning="state in ('pending', 'postpone')"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- employee booking form View -->
+    <record id="view_employee_booking_form" model="ir.ui.view">
+        <field name="name">employee.booking.form</field>
+        <field name="model">employee.booking</field>
+        <field name="arch" type="xml">
+            <form string="Employee Booking">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="new,pending,assigned,postpone,completed,canceled"/>
+                    <button name="action_assign_booking" string="Assign" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', '!=', 'new')]}"/>
+                    <button name="action_released_booking" string="Release" type="object" attrs="{'invisible':[('state', '!=', 'assigned')]}" groups="resource_requirement.team_operator"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="start_date" required="1"/>
+                            <field name="end_date" required="1"/>
+                            <field name="job_id"/>
+                            <field name="project_id"/>
+                            <field name="number_of_position"/>
+                            <field name="skill_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="job_requirement_id" domain="[('state','=','new')]" required="1"/>
+                            <field name="employee_id" domain="[('job_id', '=', job_id)]" context="{'is_job_requirement': True, 'default_project_id': project_id, 'default_start_date': start_date, 'default_end_date': end_date, 'default_skill_ids': skill_ids}" groups="resource_requirement.team_operator"/>
+                            <field name="is_team_operator" invisible="1"/>
+                            <field name="remaining_employee_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Calendar view of employee booking -->
+    <record id="view_employee_calendar" model="ir.ui.view">
+        <field name="name">employee.booking.calendar</field>
+        <field name="model">employee.booking</field>
+        <field name="arch" type="xml">
+            <calendar string="Employee Booking" date_start="start_date" date_stop="end_date" color="state" hide_time="true" event_limit="5">
+                <field name="employee_id" filters="1" avatar_field="image_128"/>
+                <!-- <field name="remaining_employee_ids" widget="many2many_tags_avatar"/> -->
+                <field name="project_id" filters="1"/>
+                <field name="number_of_position" filters="1"/>
+                <field name="state" filters="1" invisible="1"/>
+                <field name="start_date"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- View of employee bookings Groupby -->
+    <record id="view_employee_booking_search" model="ir.ui.view">
+        <field name="name">employee.booking.search</field>
+        <field name="model">employee.booking</field>
+        <field name="arch" type="xml">
+            <search string="Search Employee Booking">
+                <field name="employee_id"/>
+                <field name="project_id"/>
+                <field name="state"/>
+                <field name="start_date"/>
+                <group expand="0" string="Group By">
+                    <filter string="Employee" name="employee" domain="[]" context="{'group_by':'employee_id'}"/>
+                    <filter string="Project" name="project" domain="[]" context="{'group_by':'project_id'}"/>
+                    <filter string="State" name="state" domain="[]" context="{'group_by':'state'}"/>
+                    <filter string="Current Month" name="current_month" domain="[('start_date','&lt;',(context_today()+relativedelta(months=1)).strftime('%%Y-%%m-01')), ('end_date','&gt;=',time.strftime('%%Y-%%m-01'))]"/>
+                    <filter string="Last Month" name="last_month" domain="[('start_date','&gt;=',(context_today()-relativedelta(months=1)).strftime('%%Y-%%m-01')),('start_date','&lt;',time.strftime('%%Y-%%m-01'))]"/>
+                    <filter string="Next Month" name="next_month" domain="[('start_date','&gt;=',(context_today()+relativedelta(months=1)).strftime('%%Y-%%m-01')),('start_date','&lt;',(context_today()+relativedelta(months=2)).strftime('%%Y-%%m-01'))]"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- employee bookings pivot View -->
+    <record model="ir.ui.view" id="employee_booking_pivot_view">
+        <field name="name">employee.booking.pivot</field>
+        <field name="model">employee.booking</field>
+        <field name="arch" type="xml">
+            <pivot string="Employee Attendance" sample="1">
+                <field name="start_date" interval="day" type="col"/>
+                <field name="employee_id" type="row"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Action of employee booking calendar view -->
+    <record id="action_employee_calendar_view" model="ir.actions.act_window">
+        <field name="name">Employee Booking</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">employee.booking</field>
+        <field name="view_mode">tree,calendar,pivot</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Click to add a new Employee Booking.
+            </p>
+            <p>
+                This allows you to classify your employee bookings.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu action of employee.booking Calendar View -->
+    <menuitem id="menu_employee_booking_calendar_view"
+        name="Employee Booking By Calendar"
+        action="action_employee_calendar_view"
+        groups="resource_requirement.team_operator"
+        parent="main_menu_resource_requirement"
+        sequence="3"
+    />
+
+</odoo>

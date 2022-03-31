@@ -1,0 +1,64 @@
+.partner_id_css [data-name='partner_id']
+{
+    width: 150px !important;
+}
+.project_id_css [data-name='project_id']
+{
+    width: 150px !important;
+}
+.description_scope_css [data-name="description_scope_of_work"]
+{
+    width: 210px !important;
+}
+.start_date_css [data-name='start_date']
+{
+    width: 85px !important;
+}
+.poc_css [data-name='poc']
+{
+    width: 85px !important;
+}
+.assigned_emp_ids_css [data-name='assigned_emp_ids']
+{
+    width: 125px !important;
+}
+.assigned_vehicle_ids_css [data-name='assigned_vehicle_ids']
+{
+    width: 60px !important;
+}
+.driver_ids_css [data-name='driver_ids']
+{
+    width: 60px !important;
+}
+.location_collection_css [data-name='location_collection']
+{
+    width: 150px !important;
+}
+.quote_ref_css [data-name='quote_ref']
+{
+    width: 80px !important;
+}
+.duty_timing_css [data-name='duty_timing']
+{
+    width: 80px !important;
+}
+.cargo_description_css [data-name='cargo_description']
+{
+    width: 150px !important;
+}
+.location_delivery_id_css [data-name='location_delivery_id']
+{
+    width: 150px !important;
+}
+.arrival_time_delivery_css [data-name='arrival_time_delivery']
+{
+    width: 80px !important;
+}
+.remarks_css [data-name='remarks']
+{
+    width: 150px !important;
+}
+.state_css [data-name='state']
+{
+    width: 60px !important;
+}

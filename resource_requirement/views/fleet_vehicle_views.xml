@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Inherit Fleet Vehicle form View -->
+    <record id='inherit_fleet_vehicle_view_form' model='ir.ui.view'>
+        <field name="name">fleet.vehicle.form</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <group>
+                    <field name="type_of_vehicle_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Fleet Vehicle search View -->
+    <record id='inherit_fleet_vehicle_view_search' model='ir.ui.view'>
+        <field name="name">fleet.vehicle.search</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tag_ids']" position="after">
+                <field name="type_of_vehicle_id"/>
+                <group expand="1" string="Group By">
+                    <filter string="Type of Vehicle" name="type_of_vehicle_id" context="{'group_by': 'type_of_vehicle_id'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

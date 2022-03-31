@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- Action of in warehouse manpower by employee-->
+    <record id="action_in_warehouse_manpower_employee" model="ir.actions.act_window">
+        <field name="name">Warehouse Manpower</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_id" ref="hr.hr_kanban_view_employees"/>
+        <field name="view_mode">kanban</field>
+        <field name="context">{'create': 0, 'is_warehouse_manpower': True}</field>
+    </record>
+
+    <!-- Action of in warehouse vehicle -->
+    <record id="action_in_warehouse_vehicle" model="ir.actions.act_window">
+        <field name="name">Warehouse Vehicle</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">fleet.vehicle</field>
+        <field name="view_id" ref="fleet.fleet_vehicle_view_kanban"/>
+        <field name="view_mode">kanban</field>
+        <field name="context">{'create': 0, 'is_vehicle_requirement': True}</field>
+    </record>
+
+    <!-- Main Menu warehouse manpower -->
+    <menuitem id="menu_in_warehouse_manpower"
+        name="In Warehouse"
+        groups="resource_requirement.team_sales"
+        parent="main_menu_resource_requirement"
+        sequence="4"
+    />
+
+    <!-- Sub menu of warehouse manpower employee-->
+    <menuitem id="sub_menu_warehouse_manpower_employee"
+        name="Warehouse By Manpower"
+        groups="resource_requirement.team_sales"
+        action="action_in_warehouse_manpower_employee"
+        parent="menu_in_warehouse_manpower"
+        sequence="1"
+    />
+
+    <!-- Sub menu of warehouse vehicle-->
+    <menuitem id="sub_menu_warehouse_vehicle"
+        name="Warehouse By Vehicle"
+        groups="resource_requirement.team_sales"
+        action="action_in_warehouse_vehicle"
+        parent="menu_in_warehouse_manpower"
+        sequence="2"
+    />
+
+</odoo>

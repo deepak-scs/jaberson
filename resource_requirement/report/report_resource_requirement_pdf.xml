@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_resource_requirement_pdf">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+                    <div class="page">
+                        <center>
+                            <h1>Resource Requirement PDF Report</h1>
+                        </center>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Date and Location</th>
+                                    <th>Customer and Poc</th>
+                                    <th>Job Reference</th>
+                                    <th>Site</th>
+                                    <th>Assign vehicel number</th>
+                                    <th>Assign Employee</th>
+                                    <th style="width: 25%;">Notes and Cargo Description</th>
+                                    <th>Reporting Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="docs" t-as="line">
+                                    <td>
+                                        <span t-field="line.start_date"/>,
+                                        <span t-field="line.location_collection"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.partner_id"/>,
+                                        <span t-field="line.poc"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.quote_ref"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.project_id"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.assigned_vehicle_ids"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.assigned_emp_ids"/>
+                                    </td>
+                                    <td style="width: 25%;">
+                                        <span t-field="line.remarks"/>
+                                        <span t-field="line.cargo_description"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.duty_timing" t-options="{'widget': 'float_time'}"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

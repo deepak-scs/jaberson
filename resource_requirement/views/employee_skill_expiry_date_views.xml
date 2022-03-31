@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- hr employee skill list view -->
+    <record id="view_hr_employee_skill_tree" model="ir.ui.view">
+        <field name="name">hr.employee.skill.tree</field>
+        <field name="model">hr.employee.skill</field>
+        <field name="arch" type="xml">
+            <tree string="Vehicle Type">
+                <field name="employee_id"/>
+                <field name="skill_id"/>
+                <field name="expiry_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- View of hr employee skill Groupby -->
+    <record id="view_hr_employee_skill_search" model="ir.ui.view">
+        <field name="name">hr.employee.skill.search</field>
+        <field name="model">hr.employee.skill</field>
+        <field name="arch" type="xml">
+            <search string="Search Employee Skill and Expiry Date">
+                <field name="expiry_date"/>
+                <group expand="0" string="Group By">
+                    <filter string="Current Month" name="current_month" domain="[('expiry_date','&lt;',(context_today()+relativedelta(months=1)).strftime('%%Y-%%m-01')), ('expiry_date','&gt;=',time.strftime('%%Y-%%m-01'))]"/>
+                    <filter string="Next Month" name="next_month" domain="[('expiry_date','&gt;=',(context_today()+relativedelta(months=1)).strftime('%%Y-%%m-01')),('expiry_date','&lt;',(context_today()+relativedelta(months=2)).strftime('%%Y-%%m-01'))]"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action of hr employee skill -->
+    <record id="action_hr_employee_skill" model="ir.actions.act_window">
+        <field name="name">Employee Skill and Expiry Date</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.employee.skill</field>
+        <field name="view_mode">tree</field>
+        <field name="context">{'create':0}</field>
+    </record>
+
+    <!-- Menu action of hr employee skill -->
+    <menuitem id="menu_hr_employee_skill"
+        name="Employee Skill and Expiry Date"
+        action="action_hr_employee_skill"
+        groups="resource_requirement.team_operator"
+        parent="main_menu_resource_requirement"
+        sequence="5"
+    />
+
+</odoo>

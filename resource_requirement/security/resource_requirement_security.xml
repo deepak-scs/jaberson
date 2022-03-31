@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <!-- Security groups of resource requirement -->
+    <record model="ir.module.category" id="resource_requirement">
+        <field name="name">Resource Requirement</field>
+        <field name="description">User access level for resource requirement</field>
+    </record>
+
+    <!-- access for supervisor -->
+    <record id="team_sales" model="res.groups">
+        <field name="name">Sales Teams</field>
+        <field name="category_id" ref="resource_requirement"/>
+    </record>
+
+    <!-- access for admin -->
+    <record id="team_operator" model="res.groups">
+        <field name="name">Operator Teams</field>
+        <field name="category_id" ref="resource_requirement"/>
+        <field name="implied_ids" eval="[(4, ref('team_sales'))]"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <!-- Job Requirement list View -->
+    <record id="view_job_requirement_tree" model="ir.ui.view">
+        <field name="name">job.requirement.tree</field>
+        <field name="model">job.requirement</field>
+        <field name="arch" type="xml">
+            <tree string="Job Requirement">
+                <field name="name" string="Name"/>
+                <field name="resource_id"/>
+                <field name="project_id"/>
+                <field name="description_scope_of_work"/>
+                <field name="job_id"/>
+                <field name="number_of_position"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="is_team_operator" invisible="1"/>
+                <field name="skill_ids" widget="many2many_tags"/>
+                <field name="employee_ids" widget="many2many_tags"/>
+                <field name="state" widget="badge" decoration-success="state == 'completed'" decoration-info="state == 'new'" decoration-danger="state == 'canceled'" decoration-muted="state == 'assigned'" decoration-warning="state in ('pending', 'postpone')"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Job Requirement form View -->
+    <record id="view_job_requirement_form" model="ir.ui.view">
+        <field name="name">job.requirement.form</field>
+        <field name="model">job.requirement</field>
+        <field name="arch" type="xml">
+            <form string="Job Requirement">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="new,pending,assigned,postpone,completed,canceled"/>
+                    <button name="action_pending_job" string="Pending" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', 'not in', ['new', 'canceled'])]}"/>
+                    <button name="action_assign_job" string="Assign" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', '!=', 'new')]}"/>
+                    <button name="action_cancel_job" string="Cancel" type="object" attrs="{'invisible':[('state', 'not in', ['new', 'pending', 'assigned'])]}"/>
+                    <button name="action_postpone_job" string="Postpone" type="object" attrs="{'invisible':['|', ('is_team_operator', '!=', False), ('state', 'not in', ['assigned','pending'])]}"/>
+                    <button name="action_update_job" string="Update" type="object" attrs="{'invisible':['|', ('is_team_operator', '!=', False), ('state', '!=', 'pending')]}"/>
+                    <button name="action_released_job" string="Release" type="object" attrs="{'invisible':[('state', '!=', 'assigned')]}" groups="resource_requirement.team_operator"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="start_date" required="1"/>
+                            <field name="end_date" required="1"/>
+                            <field name="job_id" required="1"/>
+                            <field name="project_id" required="1"/>
+                            <field name="number_of_position"/>
+                            <field name="skill_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="resource_id" domain="[('state','=','new')]" required="1"/>
+                            <field name="notes"/>
+                            <field name="employee_ids" widget="many2many_tags" domain="[('job_id', '=', job_id)]" context="{'is_job_requirement': True, 'default_project_id': project_id, 'default_start_date': start_date, 'default_end_date': end_date, 'default_skill_ids': skill_ids}"/>
+                            <field name="description_scope_of_work"/>
+                            <field name="is_team_operator" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Employee Booking">
+                            <field name="employee_booking_ids" context="{'default_start_date': start_date, 'default_end_date': end_date}">
+                                <tree editable="bottom" create="0">
+                                    <field name="job_requirement_id" invisible="1"/>
+                                    <field name="resource_id" invisible="1"/>
+                                    <field name="employee_id" readonly="1"/>
+                                    <field name="start_date"/>
+                                    <field name="is_team_operator" invisible="1"/>
+                                    <field name="end_date"/>
+                                    <field name="state" invisible="1"/>
+                                    <button name="action_assign_booking" string="Assign" type="object" groups="resource_requirement.team_operator" attrs="{'invisible':[('state', '!=', 'new')]}"/>
+                                    <button name="action_released_booking" string="Release" type="object" attrs="{'invisible':[('state', '!=', 'assigned')]}" groups="resource_requirement.team_operator"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Job Requirement Kanban View  -->
+        <record model="ir.ui.view" id="view_job_requirement_kanban">
+            <field name="name">job.requirement.kanban</field>
+            <field name="model">job.requirement</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_mobile" sample="1">
+                    <field name="name"/>
+                    <field name="job_id"/>
+                    <field name="number_of_position"/>
+                    <field name="start_date"/>
+                    <field name="state"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_card oe_kanban_global_click">
+                                <div class="o_kanban_record_top mb16">
+                                    <div class="o_kanban_record_headings mt4">
+                                        <strong class="o_kanban_record_title"><span><t t-esc="record.job_id.value"/></span></strong>
+                                    </div>
+                                    <strong><field name="number_of_position"/></strong>
+                                </div>
+                                <div class="o_kanban_record_bottom">
+                                    <div class="oe_kanban_bottom_left text-muted">
+                                        <span>
+                                            <t t-esc="record.name.value"/>
+                                            <t t-esc="record.start_date.value"/>
+                                        </span>
+                                    </div>
+                                    <div class="oe_kanban_bottom_right">
+                                        <field name="state"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+    <!-- Calendar View of Job Requirement -->
+    <record id="view_job_requirement_calendar" model="ir.ui.view">
+        <field name="name">job.requirement.calendar</field>
+        <field name="model">job.requirement</field>
+        <field name="arch" type="xml">
+            <calendar string="Job Requirement" date_start="start_date" date_stop="end_date" color="state" hide_time="true" event_limit="5">
+                <field name="state" filters="1" invisible="1"/>
+                <field name="project_id" filters="1"/>
+                <field name="number_of_position" filters="1"/>
+                <field name="job_id" filters="1"/>
+                <field name="start_date"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- View of Job Requirement Groupby -->
+    <record id="view_job_requirement_search" model="ir.ui.view">
+        <field name="name">job.requirement.search</field>
+        <field name="model">job.requirement</field>
+        <field name="arch" type="xml">
+            <search string="Search Job Requirement">
+                <field name="job_id"/>
+                <field name="state"/>
+                <group expand="0" string="Group By">
+                    <filter string="State" name="states" domain="[]" context="{'group_by':'state'}"/>
+                    <filter string="Date" name="date" domain="[]" context="{'group_by':'start_date:day'}"/>
+                    <filter string="Job Position" name="job" domain="[]" context="{'group_by':'job_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Graph View of Job Requirement -->
+    <record model="ir.ui.view" id="view_job_requirement_graph">
+        <field name="name">job.requirement.graph</field>
+        <field name="model">job.requirement</field>
+        <field name="arch" type="xml">
+            <graph string="Job Requirement" stacked="False" sample="1">
+                <field name="start_date" type="col" interval="day"/>
+                <field name="end_date" type="col" interval="day"/>
+                <field name="job_id" type="row"/>
+                <field name="number_of_position" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Action of Job Requirement -->
+    <record id="action_job_requirement" model="ir.actions.act_window">
+        <field name="name">Job Requirement</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">job.requirement</field>
+        <field name="view_mode">tree,form,kanban,calendar,graph</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Click to add a new Job Requirement.
+            </p>
+            <p>
+                This allows you to classify your Resource Requirements.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu action of Job Requirement -->
+    <menuitem id="menu_job_requirement"
+        name="Job Requirement"
+        action="action_job_requirement"
+        groups="resource_requirement.team_operator"
+        parent="main_menu_resource_requirement"
+        sequence="2"
+    />
+
+</odoo>

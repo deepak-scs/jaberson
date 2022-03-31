@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="postpone_vehicle_requirement_wizard_view_form" model="ir.ui.view">
+        <field name="name">postpone.vehicle.requirement.wizard.form</field>
+        <field name="model">postpone.vehicle.requirement.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Postpone Vehicle Requirement">
+                <separator string="Please enter the reason for postpone vehicle requirement"/>
+                <field name="reason"/>
+                <group>
+                    <group>
+                        <field name="number_of_vehicle" required="1"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string='Submit' name="postpone_vehicle_requirement_reason" type="object" class="oe_highlight"/>
+                    <button string="Cancel" class="oe_link" special="cancel"/>
+                </footer>
+           </form>
+        </field>
+    </record>
+
+    <record id="postpone_vehicle_requirement_wizard_action" model="ir.actions.act_window">
+        <field name="name">Postpone Vehicle Requirement</field>
+        <field name="res_model">postpone.vehicle.requirement.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="postpone_vehicle_requirement_wizard_view_form"/>
+        <field name="target">new</field>
+    </record>
+</odoo>
